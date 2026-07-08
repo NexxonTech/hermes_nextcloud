@@ -1,0 +1,17 @@
+name: nextcloud
+version: 0.1.0
+description: Nextcloud integration for Hermes Agent
+author: Riccardo Sacchetto <rsacchetto(at)nexxontech(dot)it>
+requires_env:
+  - name: NEXTCLOUD_INSTANCE_URL
+    description: The URL to the Nextcloud instance (e.g., https://nextcloud.example.com)
+    secret: false
+  - name: NEXTCLOUD_USER
+    description: The username for Nextcloud authentication
+    secret: false
+  - name: NEXTCLOUD_APP_PASSWORD
+    description: The password for Nextcloud authentication
+    secret: true
+provides_tools:
+  - list_calendars
+  - list_events

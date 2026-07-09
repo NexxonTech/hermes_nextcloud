@@ -1,35 +1,33 @@
 from datetime import datetime
 import json
-import logging
-import os
 
-from nc_py_api import Nextcloud
+from ..get_nc_instance import get_nc_instance
 
-
-logger = logging.getLogger(__name__)
-
-def get_nc_instance() -> Nextcloud:
-    nextcloud_url = os.environ.get("NEXTCLOUD_INSTANCE_URL")
-    nextcloud_username = os.environ.get("NEXTCLOUD_USER")
-    nextcloud_app_password = os.environ.get("NEXTCLOUD_APP_PASSWORD")
-
-    print(f"Connecting to Nextcloud at {nextcloud_url} with user {nextcloud_username}...")
-
-    return Nextcloud(nextcloud_url=nextcloud_url, nc_auth_user=nextcloud_username, nc_auth_pass=nextcloud_app_password)
-
-def list_calendars(args: dict[str, str], **kwargs) -> str:
-    try:
-        nc = get_nc_instance()
-    except Exception as e:
-        return json.dumps({"status": "error", "details": f"Failed to connect to Nextcloud: {str(e)}"})
-
-    try:
-        principal = nc.cal.get_principal()
-        calendars = principal.get_calendars()
-    except Exception as e:
-        return json.dumps({"status": "error", "details": f"Failed to retrieve calendars: {str(e)}"})
-
-    return json.dumps({"status": "OK", "data": [calendar.name for calendar in calendars]}) #type: ignore
+SCHEMA = {
+    "name": "list_events",
+    "description": (
+        "List events in a given calendar, filtrable by a date range. The date range is specified by the 'start' and 'end' parameters."
+        "Use this whenever the user asks to fetch events from their calendar."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "calendar": {
+                "type": "string",
+                "description": "The name of the calendar to list events from."
+            },
+            "start": {
+                "type": "string",
+                "description": "The start date of the range to list events from."
+            },
+            "end": {
+                "type": "string",
+                "description": "The end date of the range to list events from."
+            }
+        },
+        "required": ["calendar"]
+    }
+}
 
 def list_events(args: dict[str, str], **kwargs) -> str:
     target_calendar = args.get("calendar")
